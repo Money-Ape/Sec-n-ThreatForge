@@ -1,5 +1,6 @@
 import click
 from rich.console import Console
+from pathlib import Path
 
 from threatforge.analyzer.entropy import calc_entropy
 from threatforge.analyzer.fileinfo import get_file_info
@@ -34,42 +35,49 @@ def info():
     console.print()
 
 @cli.command()
-@click.argument("path")
-@click.option("--json", "json_output", help="Save analysis as JSON.")
+@click.argument("path", type=click.Path(exists=True))
+@click.option("--json", "json_output", is_flag=True, help="Save analysis as JSON.")
 def analyze(path, json_output):
     """Perform static analysis on a file."""
-
     try:
-        file_info = get_file_info(path)
-        hashes = calc_hashes(path)
-        file_type = detect_file_type(path)
-        entropy = calc_entropy(path)
-        strings = extract_strings(path)
+        filename = Path(path).name
+        with console.status(f"[bold cyan]Analyzing the mission: {path}...[/bold cyan]", spinner="line"):     # -------------------- Processing spinner
+            try:
+                file_info = get_file_info(path)
+                hashes = calc_hashes(path)
+                file_type = detect_file_type(path)
+                entropy = calc_entropy(path)
+                strings = extract_strings(path)
 
-        exec_format = detect_executable_format(path)
-        if exec_format == "PE":
-            executable = analyze_pe(path)
-        elif exec_format == "ELF":
-            executable = analyze_elf(path)
+                executable = {}
+                exec_format = detect_executable_format(path)
+                if exec_format == "PE":
+                    executable = analyze_pe(path)
+                elif exec_format == "ELF":
+                    executable = analyze_elf(path)
 
-    except FileNotFoundError as error:
-        console.print(f"[red]Error:[/red] {error}")
-        raise SystemExit(1)
+            except FileNotFoundError as error:
+                console.print(f"[red]Error:[/red] {error}")
+                raise SystemExit(1)
 
-    findings = []
-    findings.extend(scan_strings(strings))
-    findings.extend(scan_entropy(entropy))
-    risk = calc_risk(findings)
-    result = AnalysisResult(
-        file=file_info,
-        hashes=hashes,
-        file_type=file_type,
-        executable=executable,
-        entropy=entropy,
-        strings=strings,
-        findings=findings,
-        risk=risk,
-    )
+            findings = []
+            findings.extend(scan_strings(strings))
+            findings.extend(scan_entropy(entropy))
+            risk = calc_risk(findings)
+            result = AnalysisResult(
+                file=file_info,
+                hashes=hashes,
+                file_type=file_type,
+                executable=executable,
+                entropy=entropy,
+                strings=strings,
+                findings=findings,
+                risk=risk,
+            )
+
+    except Exception as error:
+        console.print(f"[bold red]Error:[/bold red] {error}")
+        raise click.Abort()
 
     print_report(result)
 

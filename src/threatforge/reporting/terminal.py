@@ -33,6 +33,26 @@ def print_report(result: AnalysisResult) -> None:
     console.print(table)
     console.print()
 
+    if result.executable.get("sections"):
+        console.print("[bold]Executable Sections[/bold]")
+
+        section_table = Table()
+        section_table.add_column("Name")
+        section_table.add_column("Type")
+        section_table.add_column("Size")
+        section_table.add_column("Flags")
+
+        for section in result.executable["sections"]:
+            section_table.add_row(
+                section.get("name", "<unknown>"),
+                section.get("type", "-"),
+                str(section.get("size", "-")),
+                section.get("flags", section.get("permissions", "-")),
+            )
+
+        console.print(section_table)
+        console.print()
+
     if result.findings:
 
         console.print(

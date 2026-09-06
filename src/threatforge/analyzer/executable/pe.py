@@ -33,6 +33,55 @@ def subsystem_name(subsystem: int) -> str:
 
     return subsystems.get(subsystem, f"Unknown ({subsystem})")
 
+def parse_pe_sections(file, section_count: int) -> list[dict]:
+    # Parse PE section headers. The file object must already be positioned at the beginning of the PE section table.
+
+    sections = []
+    for _ in range(section_count):
+        section_header = file.read(40)
+
+        if len(section_header) < 40:
+            raise ValueError("Incomplete PE section header")
+
+# -------------------- Section Name
+        raw_name = section_header[0:8]
+        name = raw_name.split(b"\x00", 1)[0].decode("ascii", errors="replace")
+
+# -------------------- Section Information
+        virtual_size = struct.unpack_from("<I", section_header, 8)[0]
+        virtual_address = struct.unpack_from("<I", section_header, 12)[0]
+        raw_size = struct.unpack_from("<I", section_header, 16)[0]
+        raw_pointer = struct.unpack_from("<I", section_header, 20)[0]
+        characteristics = struct.unpack_from("<I", section_header,36)[0]
+
+        sections.append({
+            "name": name,
+            "virtual_size": virtual_size,
+            "virtual_address": hex(virtual_address),
+            "raw_size": raw_size,
+            "raw_pointer": hex(raw_pointer),
+            "characteristics": hex(characteristics),
+            "permissions": section_permissions(characteristics),
+        })
+
+    return sections
+
+def section_permissions(characteristics: int) -> str:
+    # Convert PE section memory characteristics into readable permissions.
+
+    permissions = ""
+
+    if characteristics & 0x20000000:
+        permissions += "X"
+
+    if characteristics & 0x40000000:
+        permissions += "R"
+
+    if characteristics & 0x80000000:
+        permissions += "W"
+
+    return permissions or "-"
+
 def analyze_pe(path: str) -> dict:
     # Perform basic static PE analysis, This function only reads the executable. It does not execute the file.
 
@@ -65,6 +114,8 @@ def analyze_pe(path: str) -> dict:
         optional_header = file.read(optional_header_size)       # -------------------- Optional Header
         if len(optional_header) < 2:
             raise ValueError("Missing PE optional header")
+
+        sections = parse_pe_sections(file, section_count)
 
         # First field tells us whether this is:
         #
@@ -103,6 +154,7 @@ def analyze_pe(path: str) -> dict:
             "architecture": machine_name(machine),
             "pe_format": pe_format,
             "section_count": section_count,
+            "sections": sections,
             "timestamp": timestamp,
             "entry_point": hex(entry_point),
             "image_base": hex(image_base),
