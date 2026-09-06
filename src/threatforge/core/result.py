@@ -5,6 +5,7 @@ class AnalysisResult:
     file: dict = field(default_factory=dict)
     hashes: dict = field(default_factory=dict)
     file_type: dict = field(default_factory=dict)
+    executable: dict = field(default_factory=dict)
 
     entropy: float = 0.0
 
