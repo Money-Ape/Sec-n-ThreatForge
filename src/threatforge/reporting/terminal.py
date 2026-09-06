@@ -16,6 +16,10 @@ def print_report(result: AnalysisResult) -> None:
     table.add_row("Extension", result.file["extension"])
     table.add_row("MIME", result.file_type["mime"])
     table.add_row("Type", result.file_type["description"])
+
+    if result.executable:
+        table.add_row("Executable Format", result.executable.get("format", "Unknown"))
+
     table.add_row("SHA-256", result.hashes["sha256"])
     table.add_row("Entropy", str(result.entropy))
     table.add_row("Strings", str(len(result.strings)))

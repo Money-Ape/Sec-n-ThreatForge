@@ -6,6 +6,9 @@ from threatforge.analyzer.fileinfo import get_file_info
 from threatforge.analyzer.filetype import detect_file_type
 from threatforge.analyzer.hashing import calc_hashes
 from threatforge.analyzer.strings import extract_strings
+from threatforge.analyzer.executable.detector import detect_executable_format
+from threatforge.analyzer.executable.pe import analyze_pe
+from threatforge.analyzer.executable.elf import analyze_elf
 from threatforge.core.result import AnalysisResult
 from threatforge.detector.rules import scan_entropy, scan_strings
 from threatforge.detector.scoring import calc_risk
@@ -43,6 +46,12 @@ def analyze(path, json_output):
         entropy = calc_entropy(path)
         strings = extract_strings(path)
 
+        exec_format = detect_executable_format(path)
+        if exec_format == "PE":
+            executable = analyze_pe(path)
+        elif exec_format == "ELF":
+            executable = analyze_elf(path)
+
     except FileNotFoundError as error:
         console.print(f"[red]Error:[/red] {error}")
         raise SystemExit(1)
@@ -55,6 +64,7 @@ def analyze(path, json_output):
         file=file_info,
         hashes=hashes,
         file_type=file_type,
+        executable=executable,
         entropy=entropy,
         strings=strings,
         findings=findings,
