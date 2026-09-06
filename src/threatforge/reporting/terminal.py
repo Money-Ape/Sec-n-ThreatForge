@@ -19,6 +19,8 @@ def print_report(result: AnalysisResult) -> None:
 
     if result.executable:
         table.add_row("Executable Format", result.executable.get("format", "Unknown"))
+        table.add_row("Architecture", result.executable.get("architecture", "Unknown"))
+        table.add_row("Entry Point", result.executable.get("entry_point", "Unknown"))
 
     table.add_row("SHA-256", result.hashes["sha256"])
     table.add_row("Entropy", str(result.entropy))
