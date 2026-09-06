@@ -31,15 +31,20 @@ The project follows a dual-purpose security model:
 
 ## Current Version
 
-**v0.2.0**
+**v0.3.1**
 
-### v0.2.0 Features
+### v0.3.1 Features
 
 * File metadata analysis
 * File type / MIME detection
 * SHA-256, SHA-1 and MD5 hashing
 * Printable string extraction
 * Shannon entropy analysis
+* PE executable identification
+* ELF executable identification
+* PE/ELF architecture and entry-point analysis
+* PE/ELF section analysis
+* Section names, types, sizes and permissions
 * Structured detection findings
 * Controlled test signatures
 * Heuristic risk scoring
@@ -63,11 +68,17 @@ Sec-n-ThreatForge/
 │       │   └── result.py
 │       │
 │       ├── analyzer/
+│       │   ├── entropy.py
+│       │   ├── executable/
+│       │   │   ├── detector.py
+│       │   │   ├── elf.py
+│       │   │   ├── __init__.py
+│       │   │   └── pe.py
 │       │   ├── fileinfo.py
 │       │   ├── filetype.py
 │       │   ├── hashing.py
-│       │   ├── strings.py
-│       │   └── entropy.py
+│       │   ├── __init__.py
+│       │   └── strings.py
 │       │
 │       ├── detector/
 │       │   ├── signatures.py
@@ -220,6 +231,12 @@ SHA-1
 SHA-256
 Entropy
 Printable strings
+Executable format
+Architecture
+Entry point
+PE/ELF sections
+Section sizes
+Section permissions / flags
 Detection findings
 Risk score
 Classification
@@ -408,7 +425,9 @@ threatforge
 
 # Project Status
 
-**Current release: v0.2.0**
+**Current release: v0.3.1**
+
+The v0.3.x development line adds executable-format analysis, including PE/ELF identification and section-level static analysis.
 
 Sec-n-ThreatForge is currently an early-stage security research framework. Its static-analysis and detection capabilities are experimental and should not be considered a replacement for established antivirus, EDR, sandboxing, or malware-analysis solutions.
 
