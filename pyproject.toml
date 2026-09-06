@@ -4,12 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sec-n-threatforge"
-version = "0.1.0"
+version = "0.2.0"
 description = "Security research framework for controlled threat generation and file analysis"
 requires-python = ">=3.12"
 dependencies = [
     "click>=8.1",
-    "rich>=13.0"
+    "rich>=13.0",
+    "python-magic>=0.4.27"
 ]
 
 [project.scripts]
