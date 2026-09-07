@@ -141,6 +141,80 @@ def section_flags_name(flags: int) -> str:
 
     return result or "-"
 
+def parse_elf_dynamic(file, sections: list[dict]) -> list[str]:
+    # Parse the ELF .dynamic section and extract DT_NEEDED shared-library dependencies.
+    # The function performs static parsing only, It does not execute the ELF file.
+
+    dynamic_section = None
+    dynstr_section = None
+
+    # -------------------- Locate Required Sections
+
+    for section in sections:
+
+        if section.get("name") == ".dynamic":
+            dynamic_section = section
+
+        elif section.get("name") == ".dynstr":
+            dynstr_section = section
+
+    if dynamic_section is None or dynstr_section is None:
+        return []
+
+    # -------------------- Read Dynamic String Table
+
+    dynstr_offset = int(dynstr_section["offset"], 16)
+    dynstr_size = dynstr_section["size"]
+
+    file.seek(dynstr_offset)
+    dynstr = file.read(dynstr_size)
+    if len(dynstr) < dynstr_size:
+        raise ValueError("Incomplete ELF dynamic string table")
+
+    # -------------------- Read Dynamic Section
+
+    dynamic_offset = int(dynamic_section["offset"], 16)
+    dynamic_size = dynamic_section["size"]
+
+    file.seek(dynamic_offset)
+    dynamic_data = file.read(dynamic_size)
+    if len(dynamic_data) < dynamic_size:
+        raise ValueError("Incomplete ELF dynamic section")
+
+    # ELF64 dynamic entry:
+    #   d_tag  -> 8 bytes
+    #   d_val  -> 8 bytes
+    # Total: 16 bytes
+
+    dependencies = []
+    entry_size = 16
+    for offset in range(0, dynamic_size, entry_size):
+        if offset + entry_size > len(dynamic_data):
+            break
+
+        tag = struct.unpack_from("<Q", dynamic_data, offset)[0]
+        value = struct.unpack_from("<Q", dynamic_data, offset + 8)[0]
+
+        # DT_NULL terminates the dynamic section.
+        if tag == 0:
+            break
+
+        # DT_NEEDED = 1, value is an offset into .dynstr.
+        if tag == 1:
+            if value >= len(dynstr):
+                continue
+
+            end = dynstr.find(b"\x00", value)
+
+            if end == -1:
+                end = len(dynstr)
+
+            library = dynstr[value:end].decode("utf-8", errors="replace")
+            if library:
+                dependencies.append(library)
+
+    return dependencies
+
 def analyze_elf(path: str) -> dict:
     # Perform basic static ELF analysis, This function only reads the executable. It does not execute the file.
 
@@ -201,6 +275,11 @@ def analyze_elf(path: str) -> dict:
             string_table_index=string_table_index,
         )
 
+        dependencies = parse_elf_dynamic(
+            file=file,
+            sections=sections
+        )
+
         elf_type = struct.unpack_from(endian + "H", header, 16)[0]      # -------------------- ELF type
         machine = struct.unpack_from(endian + "H", header, 18)[0]       # -------------------- Machine
 
@@ -222,5 +301,6 @@ def analyze_elf(path: str) -> dict:
             "architecture": machine_name(machine),
             "entry_point": hex(entry_point),
             "section_count": section_count,
-            "sections": sections
+            "sections": sections,
+            "dependencies": dependencies
         }

@@ -53,6 +53,14 @@ def print_report(result: AnalysisResult) -> None:
         console.print(section_table)
         console.print()
 
+    dependencies = result.executable.get("dependencies", [])
+    if dependencies:
+        console.print("[bold]Dependencies[/bold]")
+        for dependency in dependencies:
+            console.print(f"  • {dependency}")
+
+        console.print()
+
     if result.findings:
 
         console.print(
