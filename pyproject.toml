@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sec-n-threatforge"
-version = "0.3.0b1"
+version = "0.3.2"
 description = "Security research framework for controlled threat generation and file analysis"
 requires-python = ">=3.12"
 dependencies = [
