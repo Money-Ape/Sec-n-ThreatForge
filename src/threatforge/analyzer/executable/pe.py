@@ -82,6 +82,310 @@ def section_permissions(characteristics: int) -> str:
 
     return permissions or "-"
 
+def rva_to_file_offset(rva: int, sections: list[dict]) -> int | None:
+    # Convert a PE RVA into a raw file offset.
+
+    for section in sections:
+        virtual_address = int(section["virtual_address"], 16)
+        virtual_size = section["virtual_size"]
+        raw_size = section["raw_size"]
+        raw_pointer = int(section["raw_pointer"], 16)
+
+        # The RVA must fall within the section's virtual range.
+        section_size = max(virtual_size, raw_size)
+        if not (virtual_address <= rva < virtual_address + section_size):
+            continue
+
+        raw_offset = (raw_pointer + (rva - virtual_address))
+
+        # RVA may refer to zero-filled virtual space that doesn't exist in the file.
+        if (rva - virtual_address >= raw_size):
+            return None
+
+        return raw_offset
+
+    return None
+
+def parse_pe_data_directories(optional_header: bytes, pe_format: str) -> dict:
+    # Parse PE Optional Header data directories. Returns the important directory RVA/size pairs.
+    if pe_format == "PE32":
+        # PE32:
+        # NumberOfRvaAndSizes -> offset 92
+        # DataDirectory       -> offset 96
+        number_offset = 92
+        directory_offset = 96
+
+    elif pe_format == "PE32+":
+        # PE32+:
+        # NumberOfRvaAndSizes -> offset 108
+        # DataDirectory       -> offset 112
+        number_offset = 108
+        directory_offset = 112
+
+    else:
+        return {}
+
+    if number_offset + 4 > len(optional_header):
+        return {}
+
+    number_of_directories = struct.unpack_from("<I", optional_header, number_offset)[0]
+
+    directories = {}
+
+    # Each IMAGE_DATA_DIRECTORY entry is 8 bytes:
+    # VirtualAddress -> 4 bytes
+    # Size           -> 4 bytes
+    for index in range(min(number_of_directories, 16)):
+        offset = (directory_offset + (index * 8))
+        if offset + 8 > len(optional_header):
+            break
+
+        rva = struct.unpack_from("<I", optional_header, offset)[0]
+        size = struct.unpack_from("<I", optional_header, offset + 4)[0]
+
+        directories[index] = {
+            "rva": rva,
+            "size": size
+        }
+
+    return directories
+
+def parse_pe_imports(file, sections: list[dict], data_directories: dict, pe_format: str) -> list[dict]:
+    # Parse the PE Import Directory, The function performs static parsing only. It does not execute the PE file.
+
+    IMPORT_DIRECTORY_INDEX = 1
+    directory = data_directories.get(IMPORT_DIRECTORY_INDEX)
+    if not directory:
+        return []
+
+    import_rva = directory["rva"]
+    import_size = directory["size"]
+    if import_rva == 0 or import_size == 0:
+        return []
+
+    import_offset = rva_to_file_offset(import_rva, sections)
+
+    if import_offset is None:
+        return []
+
+    file.seek(import_offset)
+    imports = []
+
+    # IMAGE_IMPORT_DESCRIPTOR = 20 bytes
+    descriptor_size = 20
+    while True:
+        descriptor = file.read(descriptor_size)
+        if len(descriptor) < descriptor_size:
+            break
+
+        (original_first_thunk, timestamp, forwarder_chain, name_rva, first_thunk) = struct.unpack("<IIIII", descriptor)
+
+        # A completely zeroed descriptor marks the end of the Import Directory.
+        if (original_first_thunk == 0 and timestamp == 0 and forwarder_chain == 0 and name_rva == 0 and first_thunk == 0):
+            break
+
+        # -------------------- DLL Name
+        name_offset = rva_to_file_offset(name_rva, sections)
+        if name_offset is None:
+            dll_name = "<invalid>"
+
+        else:
+            file.seek(name_offset)
+            name_data = bytearray()
+            while True:
+                byte = file.read(1)
+                if not byte or byte == b"\x00":
+                    break
+
+                name_data.extend(byte)
+
+            dll_name = name_data.decode("ascii", errors="replace")
+
+        # -------------------- Import Lookup Table
+        thunk_rva = (
+            original_first_thunk
+            if original_first_thunk != 0
+            else first_thunk
+        )
+
+        thunk_offset = rva_to_file_offset(thunk_rva, sections)
+        if thunk_offset is None:
+            continue
+
+        if pe_format == "PE32":
+            thunk_size = 4
+            ordinal_flag = 0x80000000
+
+        else:
+            thunk_size = 8
+            ordinal_flag = 0x8000000000000000
+
+        functions = []
+        thunk_index = 0
+        while True:
+            file.seek(thunk_offset + (thunk_index * thunk_size))
+            thunk_data = file.read(thunk_size)
+            if len(thunk_data) < thunk_size:
+                break
+
+            thunk_index += 1
+
+            if pe_format == "PE32":
+                thunk_value = struct.unpack("<I", thunk_data)[0]
+
+            else:
+                thunk_value = struct.unpack("<Q", thunk_data)[0]
+
+            # Zero terminates the thunk table.
+            if thunk_value == 0:
+                break
+
+            # -------------------- Import By Ordinal
+            if thunk_value & ordinal_flag:
+                ordinal = (thunk_value & 0xFFFF)
+
+                functions.append({
+                    "name": None,
+                    "ordinal": ordinal,
+                    "import_type": "ORDINAL",
+                })
+                continue
+
+            # -------------------- Import By Name
+            hint_name_rva = (
+                thunk_value &
+                0x7FFFFFFF
+                if pe_format == "PE32"
+                else thunk_value &
+                0x7FFFFFFFFFFFFFFF
+            )
+
+            hint_name_offset = rva_to_file_offset(hint_name_rva, sections)
+            if hint_name_offset is None:
+                continue
+
+            file.seek(hint_name_offset)
+
+            # IMAGE_IMPORT_BY_NAME:
+            # Hint   -> 2 bytes
+            # Name   -> null-terminated string
+            hint_data = file.read(2)
+            if len(hint_data) < 2:
+                break
+
+            hint = struct.unpack("<H", hint_data)[0]
+            name_data = bytearray()
+            while True:
+                byte = file.read(1)
+                if not byte or byte == b"\x00":
+                    break
+
+                name_data.extend(byte)
+
+            function_name = name_data.decode("ascii", errors="replace")
+            functions.append({
+                "name": function_name,
+                "hint": hint,
+                "ordinal": None,
+                "import_type": "NAME",
+            })
+
+        imports.append({
+            "dll": dll_name,
+            "functions": functions,
+        })
+
+    return imports
+
+def parse_pe_exports(file, sections: list[dict], data_directories: dict) -> list[dict]:
+    # Parse the PE Export Directory, The function performs static parsing only. It does not execute the PE file.
+
+    EXPORT_DIRECTORY_INDEX = 0
+    directory = data_directories.get(EXPORT_DIRECTORY_INDEX)
+    if not directory:
+        return []
+
+    export_rva = directory["rva"]
+    export_size = directory["size"]
+    if export_rva == 0 or export_size == 0:
+        return []
+
+    export_offset = rva_to_file_offset(export_rva, sections)
+
+    if export_offset is None:
+        return []
+
+    file.seek(export_offset)
+
+    # IMAGE_EXPORT_DIRECTORY = 40 bytes
+    export_data = file.read(40)
+    if len(export_data) < 40:
+        raise ValueError("Incomplete PE export directory")
+
+    (characteristics, timestamp, major_version, minor_version, name_rva, ordinal_base, address_table_entries, number_of_name_pointers, export_address_table_rva, name_pointer_rva, ordinal_table_rva) = struct.unpack("<IIHHIIIIIII", export_data)
+
+    # -------------------- Read Export Names
+    name_pointer_offset = rva_to_file_offset(name_pointer_rva, sections)
+    ordinal_table_offset = rva_to_file_offset(ordinal_table_rva,sections)
+    export_address_offset = rva_to_file_offset(export_address_table_rva, sections)
+    if (name_pointer_offset is None or ordinal_table_offset is None or export_address_offset is None):
+        return []
+
+    exports = []
+    for index in range(number_of_name_pointers):
+
+        # -------------------- Function Name RVA
+        file.seek(name_pointer_offset + (index * 4))
+        name_rva_data = file.read(4)
+        if len(name_rva_data) < 4:
+            break
+
+        function_name_rva = struct.unpack("<I", name_rva_data)[0]
+        name_offset = rva_to_file_offset(function_name_rva, sections)
+        if name_offset is None:
+            function_name = "<invalid>"
+
+        else:
+            file.seek(name_offset)
+            name_data = bytearray()
+            while True:
+                byte = file.read(1)
+                if not byte or byte == b"\x00":
+                    break
+
+                name_data.extend(byte)
+
+            function_name = name_data.decode("ascii", errors="replace")
+
+        # -------------------- Ordinal Index
+        file.seek(ordinal_table_offset + (index * 2))
+        ordinal_data = file.read(2)
+        if len(ordinal_data) < 2:
+            break
+
+        ordinal_index = struct.unpack("<H", ordinal_data)[0]
+        ordinal = (ordinal_base + ordinal_index)
+
+        # -------------------- Function RVA
+        if ordinal_index >= address_table_entries:
+            continue
+
+        file.seek(export_address_offset + (ordinal_index * 4))
+        function_rva_data = file.read(4)
+
+        if len(function_rva_data) < 4:
+            break
+
+        function_rva = struct.unpack("<I", function_rva_data)[0]
+
+        exports.append({
+            "name": function_name,
+            "ordinal": ordinal,
+            "rva": hex(function_rva),
+        })
+
+    return exports
+
 def analyze_pe(path: str) -> dict:
     # Perform basic static PE analysis, This function only reads the executable. It does not execute the file.
 
@@ -149,6 +453,10 @@ def analyze_pe(path: str) -> dict:
         else:
             subsystem = 0
 
+        data_directories = parse_pe_data_directories(optional_header, pe_format)        # -------------------- Data Directories
+        imports = parse_pe_imports(file=file, sections=sections, data_directories=data_directories, pe_format=pe_format)        # -------------------- Imports
+        exports = parse_pe_exports(file=file, sections=sections, data_directories=data_directories)     # -------------------- Exports
+
         return {
             "format": "PE",
             "architecture": machine_name(machine),
@@ -160,4 +468,6 @@ def analyze_pe(path: str) -> dict:
             "image_base": hex(image_base),
             "subsystem": subsystem_name(subsystem),
             "characteristics": hex(characteristics),
+            "imports": imports,
+            "exports": exports,
         }

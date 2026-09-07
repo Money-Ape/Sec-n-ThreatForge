@@ -22,6 +22,13 @@ def print_report(result: AnalysisResult) -> None:
         table.add_row("Architecture", result.executable.get("architecture", "Unknown"))
         table.add_row("Entry Point", result.executable.get("entry_point", "Unknown"))
 
+        if result.executable.get("format") == "PE":
+            table.add_row("PE Format", result.executable.get("pe_format", "Unknown"))
+            table.add_row("Image Base", result.executable.get("image_base", "Unknown"))
+            table.add_row("Subsystem", result.executable.get("subsystem", "Unknown"))
+            table.add_row("Timestamp", str(result.executable.get("timestamp", "Unknown")))
+            table.add_row("Characteristics", result.executable.get("characteristics", "Unknown"))
+
     table.add_row("SHA-256", result.hashes["sha256"])
     table.add_row("Entropy", str(result.entropy))
     table.add_row("Strings", str(len(result.strings)))
@@ -53,6 +60,39 @@ def print_report(result: AnalysisResult) -> None:
         console.print(section_table)
         console.print()
 
+    if result.executable.get("imports", []):
+        console.print("[bold]PE Imports[/bold]")
+
+        for library in result.executable.get("imports", []):
+            console.print(f"[bold]{library.get('dll', '<unknown>')}[/bold]")
+
+            for function in library.get("functions", []):
+                if function.get("import_type") == "ORDINAL":
+                    console.print(f"  • Ordinal {function.get('ordinal', '-')}")
+
+                else:
+                    console.print(f"  • {function.get('name', '<unknown>')}")
+
+        console.print()
+
+    if result.executable.get("exports", []):
+        console.print("[bold]PE Exports[/bold]")
+
+        export_table = Table()
+        export_table.add_column("Name")
+        export_table.add_column("Ordinal")
+        export_table.add_column("RVA")
+
+        for export in result.executable.get("exports", []):
+            export_table.add_row(
+                export.get("name", "<unknown>"),
+                str(export.get("ordinal", "-")),
+                export.get("rva", "-")
+            )
+
+        console.print(export_table)
+        console.print()
+
     dependencies = result.executable.get("dependencies", [])
     if dependencies:
         console.print("[bold]Dependencies[/bold]")
@@ -69,6 +109,8 @@ def print_report(result: AnalysisResult) -> None:
         symbol_table.add_column("Value")
         symbol_table.add_column("Size")
         symbol_table.add_column("Section")
+        symbol_table.add_column("Binding")
+        symbol_table.add_column("Type")
 
         for symbol in result.executable["symbols"]:
             symbol_table.add_row(
@@ -76,6 +118,8 @@ def print_report(result: AnalysisResult) -> None:
                 symbol.get("value", "-"),
                 str(symbol.get("size", "-")),
                 str(symbol.get("section_index", "-")),
+                symbol.get("binding", "-"),
+                symbol.get("type", "-"),
             )
 
         console.print(symbol_table)
