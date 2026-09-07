@@ -31,9 +31,9 @@ The project follows a dual-purpose security model:
 
 ## Current Version
 
-**v0.3.1**
+**v0.3.3**
 
-### v0.3.1 Features
+### v0.3.3 Features
 
 * File metadata analysis
 * File type / MIME detection
@@ -43,14 +43,19 @@ The project follows a dual-purpose security model:
 * PE executable identification
 * ELF executable identification
 * PE/ELF architecture and entry-point analysis
-* PE/ELF section analysis
-* Section names, types, sizes and permissions
+* PE/ELF section analysis (names, types, sizes, permissions/flags)
+* PE import table parsing (DLLs, imported functions, ordinal imports)
+* PE export table parsing (exported names, ordinals, RVAs)
+* ELF dynamic symbol table parsing (`.dynsym` / `.dynstr`)
+* ELF dynamic dependency parsing (`DT_NEEDED` shared-library dependencies)
 * Structured detection findings
 * Controlled test signatures
 * Heuristic risk scoring
 * Terminal security reports
 * JSON report generation
 * Controlled test-sample generation
+
+> **Deep dive:** For a detailed breakdown of how the PE and ELF parsers work internally, see [`EXECUTABLE_ANALYSIS.md`](src/threatforge/analyzer/executable/EXECUTABLE_ANALYSIS.md).
 
 ---
 
@@ -118,28 +123,29 @@ When a file is submitted for analysis:
                              ↓
                       Static Analysis
                              │
-                    ┌────────┴────────┐
-                    ↓                 ↓
-                 Strings           Entropy
-                    │                 │
-                    └────────┬────────┘
-                             ↓
-                       Detection Engine
-                             │
-                    ┌────────┴────────┐
-                    ↓                 ↓
-                Signatures         Heuristics
-                    │                 │
-                    └────────┬────────┘
-                             ↓
-                       Risk Scoring
-                             │
-                             ↓
-                       AnalysisResult
-                       /            \
-                      ↓              ↓
-                 Terminal           JSON
-                   Report          Report
+              ┌──────────────┼──────────────┐
+              ↓              ↓              ↓
+          Strings          Entropy    Executable Format
+                                          (PE / ELF)
+                             │              │
+                             └──────┬───────┘
+                                    ↓
+                             Detection Engine
+                                    │
+                           ┌────────┴────────┐
+                           ↓                 ↓
+                       Signatures         Heuristics
+                           │                 │
+                           └────────┬────────┘
+                                    ↓
+                              Risk Scoring
+                                    │
+                                    ↓
+                              AnalysisResult
+                              /            \
+                             ↓              ↓
+                        Terminal           JSON
+                          Report          Report
 ```
 
 ---
@@ -231,27 +237,31 @@ SHA-1
 SHA-256
 Entropy
 Printable strings
-Executable format
+Executable format (PE / ELF)
 Architecture
 Entry point
 PE/ELF sections
 Section sizes
 Section permissions / flags
+PE imports (DLLs + functions/ordinals)
+PE exports (name, ordinal, RVA)
+ELF dynamic dependencies (DT_NEEDED)
+ELF dynamic symbols (.dynsym)
 Detection findings
 Risk score
 Classification
 ```
 
+See [`EXECUTABLE_ANALYSIS.md`](src/threatforge/analyzer/executable/EXECUTABLE_ANALYSIS.md) for details on exactly what is parsed from PE and ELF binaries and how.
+
 ---
 
 # JSON Reporting
 
-Analysis results can be exported as JSON:
+Analysis results can be exported as JSON with the `--json` flag:
 
 ```bash
-threatforge analyze \
-    samples/test-threats/marker.txt \
-    --json reports/marker.json
+threatforge analyze samples/test-threats/marker.txt --json
 ```
 
 The resulting report contains structured analysis data:
@@ -261,12 +271,15 @@ The resulting report contains structured analysis data:
     "file": {},
     "hashes": {},
     "file_type": {},
+    "executable": {},
     "entropy": 0.0,
     "strings": [],
     "findings": [],
     "risk": {}
 }
 ```
+
+The `executable` block is populated only when the analyzed file is a recognized PE or ELF binary, and contains the format-specific fields described in [`EXECUTABLE_ANALYSIS.md`](src/threatforge/analyzer/executable/EXECUTABLE_ANALYSIS.md) (sections, imports/exports for PE, dependencies/symbols for ELF).
 
 JSON output is intended to make Sec-n-ThreatForge usable by other tools and future automation.
 
@@ -347,6 +360,10 @@ low                         high
 
 High entropy can occur in compressed, encrypted, packed, or random data. Therefore, entropy is treated only as a **weak heuristic** and is not independently considered proof of malicious activity.
 
+### Executable-format analysis
+
+PE and ELF binaries additionally go through structural parsing (sections, imports/exports, dynamic symbols and dependencies). This is **static, read-only parsing** — no PE or ELF file is ever executed, loaded, or mapped by Sec-n-ThreatForge. See [`EXECUTABLE_ANALYSIS.md`](src/threatforge/analyzer/executable/EXECUTABLE_ANALYSIS.md) for the full breakdown.
+
 ---
 
 # Risk Assessment
@@ -362,7 +379,7 @@ Current classification:
 70 – 100    CRITICAL
 ```
 
-The scoring system is intentionally simple in v0.2.0 and will be expanded as additional analysis capabilities are introduced.
+The scoring system is intentionally simple and will be expanded as additional analysis capabilities are introduced.
 
 A risk score represents an **assessment based on collected indicators**, not a definitive malware verdict.
 
@@ -381,7 +398,7 @@ Sec-n-ThreatForge is intended for:
 
 Testing should only be performed against systems and files for which the operator has appropriate authorization.
 
-The project deliberately separates **controlled security research artifacts** from deployable malicious software.
+The project deliberately separates **controlled security research artifacts** from deployable malicious software. The PE and ELF parsers are read-only static analyzers: they inspect file structure on disk and never execute, load, or map the analyzed binary.
 
 ---
 
@@ -395,6 +412,7 @@ The project deliberately separates **controlled security research artifacts** fr
 | File identification | libmagic / python-magic  |
 | Hashing             | Python `hashlib`         |
 | Entropy             | Shannon entropy          |
+| Executable parsing  | Python `struct` (manual PE/ELF header parsing) |
 | Reporting           | JSON                     |
 | Testing             | Python testing ecosystem |
 | Version control     | Git                      |
@@ -423,11 +441,17 @@ threatforge
 
 ---
 
+# Documentation
+
+* [`EXECUTABLE_ANALYSIS.md`](src/threatforge/analyzer/executable/EXECUTABLE_ANALYSIS.md) — how the PE and ELF static analyzers work, field-by-field, including format layout notes and current limitations.
+
+---
+
 # Project Status
 
-**Current release: v0.3.1**
+**Current release: v0.3.3**
 
-The v0.3.x development line adds executable-format analysis, including PE/ELF identification and section-level static analysis.
+The v0.3.x development line adds executable-format analysis, including PE/ELF identification, section-level static analysis, PE import/export table parsing, and ELF dynamic symbol/dependency parsing.
 
 Sec-n-ThreatForge is currently an early-stage security research framework. Its static-analysis and detection capabilities are experimental and should not be considered a replacement for established antivirus, EDR, sandboxing, or malware-analysis solutions.
 
