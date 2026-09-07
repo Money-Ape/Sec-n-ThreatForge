@@ -61,6 +61,26 @@ def print_report(result: AnalysisResult) -> None:
 
         console.print()
 
+    if result.executable.get("symbols", []):
+        console.print("[bold]Dynamic Symbols[/bold]")
+
+        symbol_table = Table()
+        symbol_table.add_column("Name")
+        symbol_table.add_column("Value")
+        symbol_table.add_column("Size")
+        symbol_table.add_column("Section")
+
+        for symbol in result.executable["symbols"]:
+            symbol_table.add_row(
+                symbol.get("name", "<unknown>"),
+                symbol.get("value", "-"),
+                str(symbol.get("size", "-")),
+                str(symbol.get("section_index", "-")),
+            )
+
+        console.print(symbol_table)
+        console.print()
+
     if result.findings:
 
         console.print(

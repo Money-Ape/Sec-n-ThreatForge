@@ -104,6 +104,91 @@ def parse_elf_sections(file, elf_class: int, endian: str, section_offset: int, s
 
     return sections
 
+def parse_elf_symbols(file, sections: list[dict]) -> list[dict]:
+    # Parse the ELF .dynsym section and resolve dynamic symbol names using the .dynstr section.
+    # The function performs static parsing only. It does not execute the ELF file.
+
+    dynsym_section = None
+    dynstr_section = None
+
+    # -------------------- Locate Required Sections
+
+    for section in sections:
+        if section.get("name") == ".dynsym":
+            dynsym_section = section
+
+        elif section.get("name") == ".dynstr":
+            dynstr_section = section
+
+    if dynsym_section is None or dynstr_section is None:
+        return []
+
+    # -------------------- Read Dynamic String Table
+
+    dynstr_offset = int(dynstr_section["offset"], 16)
+    dynstr_size = dynstr_section["size"]
+    file.seek(dynstr_offset)
+    dynstr = file.read(dynstr_size)
+
+    if len(dynstr) < dynstr_size:
+        raise ValueError("Incomplete ELF dynamic string table")
+
+    # -------------------- Read Dynamic Symbol Table
+
+    dynsym_offset = int(dynsym_section["offset"], 16)
+    dynsym_size = dynsym_section["size"]
+    file.seek(dynsym_offset)
+    dynsym = file.read(dynsym_size)
+    if len(dynsym) < dynsym_size:
+        raise ValueError("Incomplete ELF dynamic symbol table")
+
+    # ELF64 symbol entry = 24 bytes
+    symbols = []
+    entry_size = 24
+    for offset in range(0, dynsym_size, entry_size):
+
+        if offset + entry_size > len(dynsym):
+            break
+
+        # -------------------- ELF64 Symbol Structure
+        #
+        # st_name   -> 4 bytes
+        # st_info   -> 1 byte
+        # st_other  -> 1 byte
+        # st_shndx  -> 2 bytes
+        # st_value  -> 8 bytes
+        # st_size   -> 8 bytes
+
+        name_offset = struct.unpack_from("<I", dynsym, offset)[0]
+        info = dynsym[offset + 4]
+        other = dynsym[offset + 5]
+        section_index = struct.unpack_from("<H", dynsym, offset + 6)[0]
+        value = struct.unpack_from("<Q", dynsym, offset + 8)[0]
+        size = struct.unpack_from("<Q", dynsym, offset + 16)[0]
+
+        # -------------------- Resolve Symbol Name
+
+        if name_offset >= len(dynstr):
+            name = "<invalid>"
+
+        else:
+            end = dynstr.find(b"\x00", name_offset)
+            if end == -1:
+                end = len(dynstr)
+
+            name = dynstr[name_offset:end].decode("utf-8", errors="replace")
+
+        symbols.append({
+            "name": name,
+            "value": hex(value),
+            "size": size,
+            "section_index": section_index,
+            "info": info,
+            "other": other,
+        })
+
+    return symbols
+
 def section_type_name(section_type: int) -> str:
     # Convert ELF section type to a readable name.
 
@@ -280,6 +365,11 @@ def analyze_elf(path: str) -> dict:
             sections=sections
         )
 
+        symbols = parse_elf_symbols(
+            file=file,
+            sections=sections
+        )
+
         elf_type = struct.unpack_from(endian + "H", header, 16)[0]      # -------------------- ELF type
         machine = struct.unpack_from(endian + "H", header, 18)[0]       # -------------------- Machine
 
@@ -302,5 +392,6 @@ def analyze_elf(path: str) -> dict:
             "entry_point": hex(entry_point),
             "section_count": section_count,
             "sections": sections,
-            "dependencies": dependencies
+            "dependencies": dependencies,
+            "symbols": symbols
         }
