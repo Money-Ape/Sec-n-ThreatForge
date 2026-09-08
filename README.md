@@ -55,7 +55,7 @@ The project follows a dual-purpose security model:
 * JSON report generation
 * Controlled test-sample generation
 
-> **Deep dive:** For a detailed breakdown of how the PE and ELF parsers work internally, see [`EXECUTABLE_ANALYSIS.md`](src/threatforge/analyzer/executable/EXECUTABLE_ANALYSIS.md).
+> **Deep dive:** For a detailed breakdown of how the PE and ELF parsers work internally, see [`EXECUTABLE_ANALYSIS.md`](src/threatforge/analyzer/executable/README.md).
 
 ---
 
@@ -252,7 +252,7 @@ Risk score
 Classification
 ```
 
-See [`EXECUTABLE_ANALYSIS.md`](src/threatforge/analyzer/executable/EXECUTABLE_ANALYSIS.md) for details on exactly what is parsed from PE and ELF binaries and how.
+See [`EXECUTABLE_ANALYSIS.md`](src/threatforge/analyzer/executable/README.md) for details on exactly what is parsed from PE and ELF binaries and how.
 
 ---
 
@@ -279,7 +279,7 @@ The resulting report contains structured analysis data:
 }
 ```
 
-The `executable` block is populated only when the analyzed file is a recognized PE or ELF binary, and contains the format-specific fields described in [`EXECUTABLE_ANALYSIS.md`](src/threatforge/analyzer/executable/EXECUTABLE_ANALYSIS.md) (sections, imports/exports for PE, dependencies/symbols for ELF).
+The `executable` block is populated only when the analyzed file is a recognized PE or ELF binary, and contains the format-specific fields described in [`EXECUTABLE_ANALYSIS.md`](src/threatforge/analyzer/executable/README.md) (sections, imports/exports for PE, dependencies/symbols for ELF).
 
 JSON output is intended to make Sec-n-ThreatForge usable by other tools and future automation.
 
@@ -362,7 +362,7 @@ High entropy can occur in compressed, encrypted, packed, or random data. Therefo
 
 ### Executable-format analysis
 
-PE and ELF binaries additionally go through structural parsing (sections, imports/exports, dynamic symbols and dependencies). This is **static, read-only parsing** — no PE or ELF file is ever executed, loaded, or mapped by Sec-n-ThreatForge. See [`EXECUTABLE_ANALYSIS.md`](src/threatforge/analyzer/executable/EXECUTABLE_ANALYSIS.md) for the full breakdown.
+PE and ELF binaries additionally go through structural parsing (sections, imports/exports, dynamic symbols and dependencies). This is **static, read-only parsing** — no PE or ELF file is ever executed, loaded, or mapped by Sec-n-ThreatForge. See [`EXECUTABLE_ANALYSIS.md`](src/threatforge/analyzer/executable/README.md) for the full breakdown.
 
 ---
 
@@ -443,7 +443,7 @@ threatforge
 
 # Documentation
 
-* [`EXECUTABLE_ANALYSIS.md`](src/threatforge/analyzer/executable/EXECUTABLE_ANALYSIS.md) — how the PE and ELF static analyzers work, field-by-field, including format layout notes and current limitations.
+* [`EXECUTABLE_ANALYSIS.md`](src/threatforge/analyzer/executable/README.md) — how the PE and ELF static analyzers work, field-by-field, including format layout notes and current limitations.
 
 ---
 
