@@ -11,7 +11,7 @@ from threatforge.analyzer.executable.detector import detect_executable_format
 from threatforge.analyzer.executable.pe import analyze_pe
 from threatforge.analyzer.executable.elf import analyze_elf
 from threatforge.core.result import AnalysisResult
-from threatforge.detector.rules import scan_entropy, scan_strings
+from threatforge.detector.rules import run_detection_rules
 from threatforge.detector.scoring import calc_risk
 from threatforge.generator.samples import generate_test_sample
 from threatforge.reporting.json_report import save_json_report
@@ -20,7 +20,7 @@ from threatforge.reporting.terminal import print_report
 console = Console()
 
 @click.group()
-@click.version_option(version="0.3.3", prog_name="Sec-n-ThreatForge")
+@click.version_option(version="0.4.0", prog_name="Sec-n-ThreatForge")
 def cli():
     """Sec-n-ThreatForge security research framework."""
     pass
@@ -31,7 +31,7 @@ def info():
     console.print()
     console.print("[bold]Sec-n-ThreatForge[/bold]")
     console.print("Security, Threat Generation & Malware Analysis Framework")
-    console.print("Version: 0.3.3")
+    console.print("Version: 0.4.0")
     console.print()
 
 @cli.command()
@@ -60,10 +60,6 @@ def analyze(path, json_output):
                 console.print(f"[red]Error:[/red] {error}")
                 raise SystemExit(1)
 
-            findings = []
-            findings.extend(scan_strings(strings))
-            findings.extend(scan_entropy(entropy))
-            risk = calc_risk(findings)
             result = AnalysisResult(
                 file=file_info,
                 hashes=hashes,
@@ -71,9 +67,9 @@ def analyze(path, json_output):
                 executable=executable,
                 entropy=entropy,
                 strings=strings,
-                findings=findings,
-                risk=risk,
             )
+            result.findings = run_detection_rules(result)
+            result.risk = calc_risk(result.findings)
 
     except Exception as error:
         console.print(f"[bold red]Error:[/bold red] {error}")

@@ -5,3 +5,11 @@ build/
 tests/
 __pycache__
 *egg-info
+
+*.py[cod]
+*$py.class
+
+.venv/
+venv/
+env/
+dist/
