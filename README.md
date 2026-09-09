@@ -31,9 +31,9 @@ The project follows a dual-purpose security model:
 
 ## Current Version
 
-**v0.3.3**
+**v0.4.0**
 
-### v0.3.3 Features
+### v0.4.0 Features
 
 * File metadata analysis
 * File type / MIME detection
@@ -50,7 +50,11 @@ The project follows a dual-purpose security model:
 * ELF dynamic dependency parsing (`DT_NEEDED` shared-library dependencies)
 * Structured detection findings
 * Controlled test signatures
-* Heuristic risk scoring
+* Context-aware risk scoring
+* Weighted heuristic contributions
+* Category-based score limits
+* Contextual indicator combinations
+* Explainable risk-score breakdown
 * Terminal security reports
 * JSON report generation
 * Controlled test-sample generation
@@ -319,28 +323,41 @@ These samples allow the detection pipeline to be tested deterministically withou
 
 # Detection Engine
 
-The current detection engine combines multiple indicators.
+The detection engine combines multiple static indicators and evaluates their
+relationships before producing a risk assessment.
 
 ```text
-                  Detection Engine
-                         │
-             ┌───────────┴───────────┐
-             ↓                       ↓
-       Signature Rules          Heuristics
-             │                       │
-             ↓                       ↓
-        Known test markers      File indicators
-             │                       │
-             └───────────┬───────────┘
-                         ↓
-                     Findings
-                         ↓
-                    Risk Score
+                         Detection Engine
+                                │
+                  ┌─────────────┴─────────────┐
+                  ↓                           ↓
+             Signatures                  Heuristics
+                  │                           │
+                  ↓                           ↓
+          Controlled markers        File / PE indicators
+                  │                           │
+                  └─────────────┬─────────────┘
+                                ↓
+                            Findings
+                                │
+                                ↓
+                       Context-Aware Scoring
+                                │
+                  ┌─────────────┴─────────────┐
+                  ↓                           ↓
+           Base Contributions          Context Bonuses
+                  │                           │
+                  └─────────────┬─────────────┘
+                                ↓
+                           Risk Score
+                                │
+                                ↓
+                         Classification
 ```
 
-### Signature detection
+## Signature Detection
 
-The current version contains controlled Sec-n-ThreatForge test signatures such as:
+The framework currently contains controlled Sec-n-ThreatForge test signatures such as:
 
 ```text
 TF_TEST_MARKER
@@ -349,7 +366,25 @@ TF_SUSPICIOUS_PATTERN
 
 These are **test indicators**, not production malware signatures.
 
-### Entropy analysis
+## Suspicious String Detection
+
+The detector can identify selected strings associated with potentially
+security-sensitive execution mechanisms.
+
+Examples include:
+
+```text
+powershell.exe
+cmd.exe
+wscript.exe
+cscript.exe
+rundll32.exe
+regsvr32.exe
+```
+
+These indicators are treated as heuristic evidence. Their presence alone does not establish malicious intent.
+
+## Entropy Analysis
 
 Sec-n-ThreatForge calculates Shannon byte entropy:
 
@@ -358,19 +393,80 @@ Sec-n-ThreatForge calculates Shannon byte entropy:
 low                         high
 ```
 
-High entropy can occur in compressed, encrypted, packed, or random data. Therefore, entropy is treated only as a **weak heuristic** and is not independently considered proof of malicious activity.
+High entropy can occur in compressed, encrypted, packed, or random data. Therefore, entropy is treated as a **weak heuristic** rather than proof of malicious activity.
 
-### Executable-format analysis
+## PE Import Heuristics
 
-PE and ELF binaries additionally go through structural parsing (sections, imports/exports, dynamic symbols and dependencies). This is **static, read-only parsing** — no PE or ELF file is ever executed, loaded, or mapped by Sec-n-ThreatForge. See [`EXECUTABLE_ANALYSIS.md`](src/threatforge/analyzer/executable/README.md) for the full breakdown.
+PE imports are inspected for selected security-sensitive APIs, including memory-management and process-manipulation functions.
+
+Examples include:
+
+```text
+VirtualAlloc
+VirtualProtect
+WriteProcessMemory
+CreateRemoteThread
+OpenProcess
+```
+
+Import presence represents **static capability evidence**. It does not mean that the application actually calls or misuses the imported API.
+
+## PE Section Heuristics
+
+PE section permissions are also examined for unusual combinations such as writable and executable sections.
+
+A writable/executable section may be relevant during malware analysis, but it can also occur for legitimate technical reasons. It is therefore treated as heuristic evidence.
 
 ---
 
 # Risk Assessment
 
-Findings contribute to a cumulative risk score.
+Sec-n-ThreatForge uses a context-aware static risk-scoring system.
 
-Current classification:
+Individual findings have a declared severity, but severity is not necessarily added directly to the final score. Heuristic indicators may receive reduced weights, while related indicators can produce additional contextual risk contributions.
+
+The scoring process is:
+
+```text
+Individual Findings
+        │
+        ↓
+Deduplication
+        │
+        ↓
+Weighted Contributions
+        │
+        ↓
+Category Caps
+        │
+        ↓
+Contextual Combinations
+        │
+        ↓
+Final Score
+```
+
+Weak indicators receive reduced weight so that common characteristics do not dominate the assessment.
+
+For example:
+
+```text
+High entropy
+```
+
+is weaker evidence than a combination such as:
+
+```text
+VirtualAlloc
+      +
+WriteProcessMemory
+      +
+CreateRemoteThread
+```
+
+Related indicators can therefore produce additional contextual risk contributions.
+
+### Current Classification
 
 ```text
 0 – 19      LOW
@@ -379,11 +475,18 @@ Current classification:
 70 – 100    CRITICAL
 ```
 
-The scoring system is intentionally simple and will be expanded as additional analysis capabilities are introduced.
+The risk result also records:
 
-A risk score represents an **assessment based on collected indicators**, not a definitive malware verdict.
+```text
+Base Score
+Context Bonus
+Category Breakdown
+Contextual Risk Factors
+```
 
----
+This makes the assessment more explainable than a single unexplained score.
+
+> A risk score represents an assessment based on collected static indicators. It is not a definitive malware verdict.
 
 # Security Philosophy
 
@@ -449,9 +552,9 @@ threatforge
 
 # Project Status
 
-**Current release: v0.3.3**
+**Current release: v0.4.0**
 
-The v0.3.x development line adds executable-format analysis, including PE/ELF identification, section-level static analysis, PE import/export table parsing, and ELF dynamic symbol/dependency parsing.
+The v0.4.x development line introduces context-aware static threat detection and risk assessment.
 
 Sec-n-ThreatForge is currently an early-stage security research framework. Its static-analysis and detection capabilities are experimental and should not be considered a replacement for established antivirus, EDR, sandboxing, or malware-analysis solutions.
 

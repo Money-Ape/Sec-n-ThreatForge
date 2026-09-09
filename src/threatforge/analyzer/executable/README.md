@@ -163,7 +163,52 @@ Section Headers (via parse_elf_sections)
 
 ---
 
-## 4. Adding the results to a report
+## 4. Integration with Detection and Risk Scoring
+
+The executable analyzer provides structural evidence to the detection engine.
+
+For PE files, information such as:
+
+* section permissions,
+* imported DLLs,
+* imported functions,
+* exported functions,
+* executable structure
+
+can be consumed by detection rules.
+
+The detection engine treats these characteristics as static evidence rather than proof of malicious behavior.
+
+For example, importing `VirtualAlloc` or `VirtualProtect` alone does not indicate malware. Multiple related indicators may receive additional contextual risk contribution when they appear together.
+
+For ELF files, the analyzer currently exposes sections, dynamic dependencies, and dynamic symbols as static evidence. These fields are available to downstream detection logic even where no current heuristic is applied.
+
+The executable analyzer itself remains read-only and does not execute or load the analyzed binary.
+
+---
+
+## 5. Reporting
+
+Both `analyze_pe()` and `analyze_elf()` return a single `dict`, stored as `AnalysisResult.executable` (see `core/result.py`).
+
+The terminal reporter (`reporting/terminal.py`) renders this into:
+
+* a summary row block (format, architecture, entry point, plus PE-only fields like PE format / image base / subsystem / timestamp / characteristics),
+* an **Executable Sections** table,
+* a **PE Imports** listing (grouped by DLL),
+* a **PE Exports** table,
+* a **Dependencies** list (ELF `DT_NEEDED` entries),
+* a **Dynamic Symbols** table (ELF `.dynsym`),
+* detection findings,
+* risk score, classification, base score, and context bonus,
+* contextual risk factors when applicable.
+
+The JSON reporter (`reporting/json_report.py`) serializes the same `AnalysisResult` (including the full `executable` dict) via `dataclasses.asdict()`, so every field documented above is also available in JSON reports for downstream tooling.
+
+---
+
+## 6. Adding the results to a report
+
 
 Both `analyze_pe()` and `analyze_elf()` return a single `dict`, stored as `AnalysisResult.executable` (see `core/result.py`). The terminal reporter (`reporting/terminal.py`) renders this into:
 
