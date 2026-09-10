@@ -1,5 +1,9 @@
 # Sec-n-ThreatForge
 
+<p align="center">
+  <img src="assets/SecThreatForge_banner.png" alt="PassCore Banner">
+</p>
+
 **Security, Threat Generation & Malware Analysis Framework**
 
 Sec-n-ThreatForge is a Python-based security research framework designed to study the relationship between **controlled threat generation, static file analysis, detection techniques, and threat assessment**.
