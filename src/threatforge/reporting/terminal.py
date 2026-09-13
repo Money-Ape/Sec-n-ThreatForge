@@ -173,3 +173,55 @@ def print_report(result: AnalysisResult) -> None:
                 console.print(f"    Evidence: {finding["value"]}")
 
         console.print()
+
+def print_evaluation_report(results, metrics) -> None:      # Print the evaluation results and metrics
+
+    console.print()
+    console.print("[bold]Sec-n-ThreatForge Evaluation[/bold]")
+    console.print()
+
+    table = Table(title="Corpus Results")
+    table.add_column("Sample")
+    table.add_column("Expected")
+    table.add_column("Actual")
+    table.add_column("Risk")
+    table.add_column("Score")
+    table.add_column("Result")
+
+    for result in results:
+        expected = (
+            "DETECT"
+            if result.expected_detection
+            else "NO DETECT"
+        )
+        actual = (
+            "DETECT"
+            if result.actual_detection
+            else "NO DETECT"
+        )
+        status = (
+            "PASS"
+            if result.correct
+            else "FAIL"
+        )
+
+        table.add_row(result.name, expected, actual, result.actual_risk, str(result.score), status)
+
+    console.print(table)
+    console.print()
+
+    metrics_table = Table(title="Evaluation Metrics")
+    metrics_table.add_column("Metric")
+    metrics_table.add_column("Value")
+    metrics_table.add_row("Samples", str(metrics.total))
+    metrics_table.add_row("True Positives", str(metrics.true_positive))
+    metrics_table.add_row("True Negatives", str(metrics.true_negative))
+    metrics_table.add_row("False Positives", str(metrics.false_positive))
+    metrics_table.add_row("False Negatives", str(metrics.false_negative))
+    metrics_table.add_row("Detection Rate", f"{metrics.detection_rate * 100:.2f}%")
+    metrics_table.add_row("False Positive Rate", f"{metrics.false_positive_rate * 100:.2f}%")
+    metrics_table.add_row("Accuracy", f"{metrics.accuracy * 100:.2f}%")
+    metrics_table.add_row("Precision", f"{metrics.precision * 100:.2f}%")
+    metrics_table.add_row("Recall", f"{metrics.recall * 100:.2f}%")
+
+    console.print(metrics_table)
