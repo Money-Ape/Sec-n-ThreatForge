@@ -1,0 +1,4 @@
+This is a harmless Sec-n-ThreatForge evaluation sample.
+
+It contains ordinary text and should not trigger any
+controlled threat signatures.
