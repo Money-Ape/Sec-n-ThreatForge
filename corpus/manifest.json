@@ -1,0 +1,24 @@
+{
+    "version": "1.0",
+    "description": "Sec-n-ThreatForge controlled evaluation corpus",
+    "samples": [
+        {
+            "name": "benign-text",
+            "path": "corpus/benign/benign.txt",
+            "expected_detection": false,
+            "category": "benign"
+        },
+        {
+            "name": "controlled-marker",
+            "path": "corpus/test-threats/marker.txt",
+            "expected_detection": true,
+            "category": "controlled-test"
+        },
+        {
+            "name": "controlled-suspicious",
+            "path": "corpus/test-threats/suspicious.txt",
+            "expected_detection": true,
+            "category": "controlled-test"
+        }
+    ]
+}
