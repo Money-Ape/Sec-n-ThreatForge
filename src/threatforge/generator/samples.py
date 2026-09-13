@@ -15,7 +15,25 @@ def generate_test_sample(output: str, sample_type: str) -> Path:
         "suspicious": (
             "Sec-n-ThreatForge controlled analysis sample.\n"
             "TF_SUSPICIOUS_PATTERN\n"
-        )
+        ),
+
+        "marker-case": (
+            "Sec-n-ThreatForge controlled variant.\n"
+            "tf_test_marker\n"
+        ),
+
+        "marker-context": (
+            "Sec-n-ThreatForge controlled variant.\n"
+            "ordinary data before marker\n"
+            "TF_TEST_MARKER\n"
+            "ordinary data after marker\n"
+        ),
+
+        "marker-duplicate": (
+            "Sec-n-ThreatForge controlled variant.\n"
+            "TF_TEST_MARKER\n"
+            "TF_TEST_MARKER\n"
+        ),
     }
 
     if sample_type not in samples:
