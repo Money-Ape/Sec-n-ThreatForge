@@ -1,0 +1,2 @@
+Sec-n-ThreatForge controlled analysis sample.
+TF_SUSPICIOUS_PATTERN

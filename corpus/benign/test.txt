@@ -1,0 +1,2 @@
+Sec-n-ThreatForge benign test sample.
+This file contains ordinary test data.
