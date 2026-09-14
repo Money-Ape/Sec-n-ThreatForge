@@ -1,0 +1,4 @@
+Sec-n-ThreatForge controlled variant.
+ordinary data before marker
+TF_TEST_MARKER
+ordinary data after marker

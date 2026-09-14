@@ -1,0 +1,4 @@
+Sec-n-ThreatForge controlled string test.
+powershell.exe
+cmd.exe
+wscript.exe
