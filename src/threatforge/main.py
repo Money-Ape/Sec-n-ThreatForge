@@ -15,11 +15,10 @@ from threatforge.detector.rules import run_detection_rules
 from threatforge.detector.scoring import calc_risk
 from threatforge.generator.samples import generate_test_sample
 from threatforge.reporting.json_report import save_json_report
-from threatforge.reporting.terminal import print_report
 from threatforge.evaluation.corpus import load_corpus
 from threatforge.evaluation.runner import run_corpus
 from threatforge.evaluation.metrics import calculate_metrics
-from threatforge.reporting.terminal import print_evaluation_report
+from threatforge.reporting.terminal import print_report, print_evaluation_report
 
 console = Console()
 
@@ -101,7 +100,20 @@ def evaluate(corpus_path):
     print_evaluation_report(results, metrics)
 
 @cli.command()
-@click.option("--type", "sample_type", type=click.Choice(["benign", "marker", "suspicious"]), required=True)
+@click.option("--type", "sample_type",
+    type=click.Choice([
+        "benign",
+        "marker",
+        "suspicious",
+        "marker-case",
+        "marker-context",
+        "marker-duplicate",
+        "marker-spaced",
+        "marker-mixed-case",
+        "powershell-string",
+        "cmd-string",
+        "multiple-suspicious-strings"]), required=True,
+)
 @click.option("--output", required=True )
 def generate(sample_type, output):
     """Generate a controlled test sample."""

@@ -7,9 +7,10 @@ class CorpusSample:     # A single sample definition in the evaluation corpus.
     name: str
     path: str
     expected_detection: bool
+    expected_risk: str | None = None
     category: str = "unknown"
 
-def load_corpus(manifest_path: str | Path) -> list[CorpusSample]:       # Load evaluation samples from a JSON manifest.
+def load_corpus(manifest_path: str | Path) -> list[CorpusSample]:       # Load evaluation samples from a corpus manifest.
 
     manifest_path = Path(manifest_path)
     if not manifest_path.exists():
@@ -25,7 +26,8 @@ def load_corpus(manifest_path: str | Path) -> list[CorpusSample]:       # Load e
                 name=entry["name"],
                 path=entry["path"],
                 expected_detection=entry["expected_detection"],
-                category=entry.get("category", "unknown")
+                expected_risk=entry.get("expected_risk"),
+                category=entry.get("category", "unknown"),
             )
         )
 

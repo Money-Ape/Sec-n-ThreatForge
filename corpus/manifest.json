@@ -1,24 +1,77 @@
 {
-    "version": "1.0",
-    "description": "Sec-n-ThreatForge controlled evaluation corpus",
-    "samples": [
-        {
-            "name": "benign-text",
-            "path": "corpus/benign/benign.txt",
-            "expected_detection": false,
-            "category": "benign"
-        },
-        {
-            "name": "controlled-marker",
-            "path": "corpus/test-threats/marker.txt",
-            "expected_detection": true,
-            "category": "controlled-test"
-        },
-        {
-            "name": "controlled-suspicious",
-            "path": "corpus/test-threats/suspicious.txt",
-            "expected_detection": true,
-            "category": "controlled-test"
-        }
-    ]
+  "version": "0.5.0",
+  "description": "Sec-n-ThreatForge controlled evaluation corpus",
+  "samples": [
+    {
+      "name": "benign-text",
+      "path": "corpus/benign/benign.txt",
+      "expected_detection": false,
+      "expected_risk": "LOW",
+      "category": "benign"
+    },
+    {
+      "name": "controlled-marker",
+      "path": "corpus/test-threats/marker.txt",
+      "expected_detection": true,
+      "expected_risk": "LOW",
+      "category": "controlled-test"
+    },
+    {
+      "name": "controlled-suspicious",
+      "path": "corpus/test-threats/suspicious.txt",
+      "expected_detection": true,
+      "expected_risk": "MEDIUM",
+      "category": "controlled-test"
+    },
+
+    {
+      "name": "marker-case",
+      "path": "corpus/test-threats/variants/marker-case.txt",
+      "expected_detection": true,
+      "category": "indicator-variation"
+    },
+    {
+      "name": "marker-context",
+      "path": "corpus/test-threats/variants/marker-context.txt",
+      "expected_detection": true,
+      "category": "indicator-variation"
+    },
+    {
+      "name": "marker-duplicate",
+      "path": "corpus/test-threats/variants/marker-duplicate.txt",
+      "expected_detection": true,
+      "category": "indicator-variation"
+    },
+    {
+      "name": "marker-spaced",
+      "path": "corpus/test-threats/variants/marker-spaced.txt",
+      "expected_detection": true,
+      "category": "indicator-variation"
+    },
+    {
+      "name": "marker-mixed-case",
+      "path": "corpus/test-threats/variants/marker-mixed-case.txt",
+      "expected_detection": true,
+      "category": "indicator-variation"
+    },
+
+    {
+      "name": "powershell-string",
+      "path": "corpus/test-threats/variants/powershell.txt",
+      "expected_detection": true,
+      "category": "suspicious-string"
+    },
+    {
+      "name": "cmd-string",
+      "path": "corpus/test-threats/variants/cmd.txt",
+      "expected_detection": true,
+      "category": "suspicious-string"
+    },
+    {
+      "name": "multiple-suspicious-strings",
+      "path": "corpus/test-threats/variants/multiple-strings.txt",
+      "expected_detection": true,
+      "category": "suspicious-string"
+    }
+  ]
 }

@@ -63,7 +63,6 @@ def analyze_file(path: str | Path) -> AnalysisResult:
     return result
 
 def evaluate_sample(sample: CorpusSample, root: str | Path = ".",) -> EvaluationResult:
-    # Analyze one corpus sample and compare its actual detection state with the expected detection state.
 
     root = Path(root)
     sample_path = root / sample.path
@@ -72,7 +71,16 @@ def evaluate_sample(sample: CorpusSample, root: str | Path = ".",) -> Evaluation
 
     actual_risk = result.risk.get("classification", "UNKNOWN")
     score = result.risk.get("score", 0)
-    correct = (actual_detection == sample.expected_detection)
+
+    detection_correct = (actual_detection == sample.expected_detection)
+
+    if sample.expected_risk is None:
+        risk_correct = True
+
+    else:
+        risk_correct = (actual_risk.upper() == sample.expected_risk.upper())
+
+    correct = (detection_correct and risk_correct)
 
     return EvaluationResult(
         name=sample.name,
@@ -80,7 +88,7 @@ def evaluate_sample(sample: CorpusSample, root: str | Path = ".",) -> Evaluation
         category=sample.category,
         expected_detection=sample.expected_detection,
         actual_detection=actual_detection,
-        expected_risk=None,
+        expected_risk=sample.expected_risk,
         actual_risk=actual_risk,
         score=score,
         correct=correct,

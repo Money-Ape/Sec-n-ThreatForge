@@ -182,9 +182,9 @@ def print_evaluation_report(results, metrics) -> None:      # Print the evaluati
 
     table = Table(title="Corpus Results")
     table.add_column("Sample")
-    table.add_column("Expected")
-    table.add_column("Actual")
-    table.add_column("Risk")
+    table.add_column("Detection")
+    table.add_column("Expected Risk")
+    table.add_column("Actual Risk")
     table.add_column("Score")
     table.add_column("Result")
 
@@ -199,13 +199,18 @@ def print_evaluation_report(results, metrics) -> None:      # Print the evaluati
             if result.actual_detection
             else "NO DETECT"
         )
+        expected_risk = (
+            result.expected_risk
+            if result.expected_risk is not None
+            else "ANY"
+        )
         status = (
             "PASS"
             if result.correct
             else "FAIL"
         )
 
-        table.add_row(result.name, expected, actual, result.actual_risk, str(result.score), status)
+        table.add_row(result.name, f"{expected} / {actual}", expected_risk, result.actual_risk, str(result.score), status)
 
     console.print(table)
     console.print()
@@ -223,5 +228,8 @@ def print_evaluation_report(results, metrics) -> None:      # Print the evaluati
     metrics_table.add_row("Accuracy", f"{metrics.accuracy * 100:.2f}%")
     metrics_table.add_row("Precision", f"{metrics.precision * 100:.2f}%")
     metrics_table.add_row("Recall", f"{metrics.recall * 100:.2f}%")
+    metrics_table.add_row("Risk Correct", str(metrics.risk_correct))
+    metrics_table.add_row("Risk Incorrect", str(metrics.risk_incorrect))
+    metrics_table.add_row("Risk Accuracy",f"{metrics.risk_accuracy * 100:.2f}%")
 
     console.print(metrics_table)
