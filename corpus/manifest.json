@@ -72,6 +72,56 @@
       "path": "corpus/test-threats/variants/multiple-strings.txt",
       "expected_detection": true,
       "category": "suspicious-string"
+    },
+
+    {
+      "name": "pe-basic",
+      "path": "corpus/test-threats/pe-basic.exe",
+      "expected_detection": false,
+      "expected_risk": "LOW",
+      "category": "pe-benign"
+    },
+    {
+      "name": "pe-imports",
+      "path": "corpus/test-threats/pe-imports.exe",
+      "expected_detection": false,
+      "expected_risk": "LOW",
+      "category": "pe-benign"
+    },
+    {
+      "name": "elf-basic",
+      "path": "corpus/test-threats/elf-basic",
+      "expected_detection": false,
+      "expected_risk": "LOW",
+      "category": "elf-benign"
+    },
+    {
+      "name": "elf-basic",
+      "path": "corpus/test-threats/executables/elf-basic",
+      "expected_detection": false,
+      "expected_risk": "LOW",
+      "category": "elf-benign"
+    },
+    {
+      "name": "elf-dependency",
+      "path": "corpus/test-threats/executables/elf-dependency",
+      "expected_detection": false,
+      "expected_risk": "LOW",
+      "category": "elf-benign"
+    },
+    {
+      "name": "pe-basic",
+      "path": "corpus/test-threats/executables/pe-basic.exe",
+      "expected_detection": false,
+      "expected_risk": "LOW",
+      "category": "pe-benign"
+    },
+    {
+      "name": "pe-imports",
+      "path": "corpus/test-threats/executables/pe-imports.exe",
+      "expected_detection": false,
+      "expected_risk": "LOW",
+      "category": "pe-benign"
     }
   ]
 }
