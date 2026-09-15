@@ -2,7 +2,6 @@
 samples/
 reports/
 build/
-tests/
 __pycache__
 *egg-info
 

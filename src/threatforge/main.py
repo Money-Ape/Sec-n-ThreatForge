@@ -14,7 +14,7 @@ from threatforge.core.result import AnalysisResult
 from threatforge.detector.rules import run_detection_rules
 from threatforge.detector.scoring import calc_risk
 from threatforge.generator.samples import generate_test_sample
-from threatforge.reporting.json_report import save_json_report
+from threatforge.reporting.json_report import save_json_report, save_evaluation_json_report
 from threatforge.evaluation.corpus import load_corpus
 from threatforge.evaluation.runner import run_corpus
 from threatforge.evaluation.metrics import calculate_metrics
@@ -86,7 +86,8 @@ def analyze(path, json_output):
 
 @cli.command()
 @click.option("--corpus", "corpus_path", default="corpus/manifest.json", show_default=True, help="Path to the evaluation corpus manifest.")
-def evaluate(corpus_path):
+@click.option("--json", "json_output", type=click.Path(), help="Save evaluation results as JSON.")
+def evaluate(corpus_path, json_output):
     # Evaluate the detection engine against a controlled corpus.
     try:
         samples = load_corpus(corpus_path)
@@ -98,6 +99,10 @@ def evaluate(corpus_path):
         raise SystemExit(1)
 
     print_evaluation_report(results, metrics)
+
+    if json_output:
+        save_evaluation_json_report(results, metrics, json_output)
+        console.print(f"[green]JSON evaluation report saved:[/green] {json_output}")
 
 @cli.command()
 @click.option("--type", "sample_type",
