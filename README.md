@@ -35,9 +35,9 @@ The project follows a dual-purpose security model:
 
 ## Current Version
 
-**v0.4.0**
+**v0.5.0**
 
-### v0.4.0 Features
+### v0.5.0 Features
 
 * File metadata analysis
 * File type / MIME detection
@@ -62,7 +62,11 @@ The project follows a dual-purpose security model:
 * Terminal security reports
 * JSON report generation
 * Controlled test-sample generation
-
+* Expanded controlled sample generator (marker case/spacing/context/duplicate variants, single and multiple suspicious-string samples)
+* Corpus-based detection-engine evaluation (`threatforge evaluate`)
+* Evaluation metrics: detection rate, false-positive rate, accuracy, precision, recall, risk-classification accuracy
+* Terminal and JSON reporting for evaluation runs
+* Deterministic ELF test fixtures for evaluation/testing
 > **Deep dive:** For a detailed breakdown of how the PE and ELF parsers work internally, see [`EXECUTABLE_ANALYSIS.md`](src/threatforge/analyzer/executable/README.md).
 
 ---
@@ -100,6 +104,12 @@ Sec-n-ThreatForge/
 │       │
 │       ├── generator/
 │       │   └── samples.py
+│       │
+│       ├── evaluation/
+│       │   ├── corpus.py
+│       │   ├── runner.py
+│       │   ├── metrics.py
+│       │   └── fixtures.py
 │       │
 │       └── reporting/
 │           ├── terminal.py
@@ -321,8 +331,66 @@ threatforge generate \
     --output samples/test-threats/suspicious.txt
 ```
 
-These samples allow the detection pipeline to be tested deterministically without requiring real malware.
+Additional controlled variants are available for exercising specific matching behavior in the detection engine:
 
+```text
+marker-case                    lowercase marker
+marker-context                 marker surrounded by ordinary text
+marker-duplicate               marker repeated in the same file
+marker-spaced                  marker with trailing whitespace
+marker-mixed-case              mixed-case marker
+powershell-string               single powershell.exe reference
+cmd-string                      single cmd.exe reference
+multiple-suspicious-strings     multiple suspicious string references
+```
+ 
+Example:
+ 
+```bash
+threatforge generate \
+    --type marker-mixed-case \
+    --output samples/test-threats/marker-mixed-case.txt
+```
+ 
+These samples allow the detection pipeline to be tested deterministically without requiring real malware.
+ 
+---
+ 
+# Detection Engine Evaluation
+ 
+Sec-n-ThreatForge can evaluate the detection engine against a corpus of controlled samples with known-expected outcomes, to measure detection accuracy over time as rules and scoring evolve.
+ 
+Run an evaluation against the default corpus manifest (`corpus/manifest.json`):
+ 
+```bash
+threatforge evaluate
+```
+ 
+Use a different corpus manifest, and optionally save results as JSON:
+ 
+```bash
+threatforge evaluate \
+    --corpus corpus/manifest.json \
+    --json evaluation-report.json
+```
+ 
+Each sample in the manifest declares its expected outcome (whether it should be detected, and optionally its expected risk classification). The evaluation runner analyzes every sample with the same static-analysis pipeline used by `threatforge analyze`, then compares actual results against expectations.
+ 
+The evaluation report includes:
+ 
+```text
+True positives / true negatives
+False positives / false negatives
+Detection rate
+False-positive rate
+Accuracy
+Precision
+Recall
+Risk-classification accuracy
+```
+ 
+This turns detection-engine changes (new rules, adjusted weights, new signatures) into something that can be regression-tested against a known corpus rather than checked by hand.
+ 
 ---
 
 # Detection Engine
@@ -556,9 +624,9 @@ threatforge
 
 # Project Status
 
-**Current release: v0.4.0**
+**Current release: v0.5.0**
 
-The v0.4.x development line introduces context-aware static threat detection and risk assessment.
+The v0.4.x development line introduced context-aware static threat detection and risk assessment. The v0.5.x line builds on that with corpus-based evaluation of the detection engine, giving detection accuracy a measurable, regression-testable baseline (detection rate, false-positive rate, precision/recall, and risk-classification accuracy), alongside an expanded set of controlled test-sample variants used to exercise that evaluation.
 
 Sec-n-ThreatForge is currently an early-stage security research framework. Its static-analysis and detection capabilities are experimental and should not be considered a replacement for established antivirus, EDR, sandboxing, or malware-analysis solutions.
 
