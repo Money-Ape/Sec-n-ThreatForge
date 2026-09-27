@@ -1,0 +1,89 @@
+
+                                              Sec-n-ThreatForge Analysis                                              
+┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Property          ┃ Value                                                                                          ┃
+┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ Name              │ pe-basic.exe                                                                                   │
+│ Size              │ 17408 bytes                                                                                    │
+│ Extension         │ .exe                                                                                           │
+│ MIME              │ application/vnd.microsoft.portable-executable                                                  │
+│ Type              │ PE32+ executable for MS Windows 5.02 (console), x86-64 (stripped to external PDB), 10 sections │
+│ Executable Format │ PE                                                                                             │
+│ Architecture      │ x86-64                                                                                         │
+│ Entry Point       │ 0x1440                                                                                         │
+│ PE Format         │ PE32+                                                                                          │
+│ Image Base        │ 0x140000000                                                                                    │
+│ Subsystem         │ Windows Console                                                                                │
+│ Timestamp         │ 1789467971                                                                                     │
+│ Characteristics   │ 0x22e                                                                                          │
+│ SHA-256           │ 3aa777ce06ea8eba63887d73efb52cb47bab1356d89036d4a6d63f56012d0ac2                               │
+│ Entropy           │ 4.6398                                                                                         │
+│ Strings           │ 190                                                                                            │
+│ Findings          │ 1                                                                                              │
+│ Risk Score        │ 5                                                                                              │
+│ Classification    │ LOW                                                                                            │
+│ Base Score        │ 5                                                                                              │
+│ Context Bonus     │ 0                                                                                              │
+└───────────────────┴────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+Executable Sections
+┏━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━┓
+┃ Name     ┃ Virtual Size ┃ Raw Size ┃ RVA    ┃ Permissions ┃
+┡━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━┩
+│ .text    │ 6928         │ 7168     │ 0x1000 │ XR          │
+│ .data    │ 192          │ 512      │ 0x3000 │ RW          │
+│ .rdata   │ 2568         │ 3072     │ 0x4000 │ R           │
+│ .eh_fram │ 4            │ 512      │ 0x5000 │ RW          │
+│ .pdata   │ 564          │ 1024     │ 0x6000 │ R           │
+│ .xdata   │ 444          │ 512      │ 0x7000 │ R           │
+│ .bss     │ 480          │ 0        │ 0x8000 │ RW          │
+│ .idata   │ 2284         │ 2560     │ 0x9000 │ R           │
+│ .tls     │ 16           │ 512      │ 0xa000 │ RW          │
+│ .reloc   │ 96           │ 512      │ 0xb000 │ R           │
+└──────────┴──────────────┴──────────┴────────┴─────────────┘
+
+PE Imports
+KERNEL32.dll
+  • DeleteCriticalSection
+  • EnterCriticalSection
+  • FreeLibrary
+  • GetLastError
+  • GetModuleHandleA
+  • GetProcAddress
+  • InitializeCriticalSection
+  • LeaveCriticalSection
+  • LoadLibraryA
+  • SetUnhandledExceptionFilter
+  • Sleep
+  • TlsGetValue
+  • VirtualProtect
+  • VirtualQuery
+<invalid>
+  • Ordinal 0
+  • Ordinal 0
+  • Ordinal 0
+  • Ordinal 0
+  • Ordinal 0
+  • Ordinal 0
+  • Ordinal 0
+  • Ordinal 27748
+  • Ordinal 0
+  • Ordinal 25646
+  • Ordinal 27756
+  • Ordinal 0
+  • Ordinal 27748
+  • Ordinal 0
+  • Ordinal 0
+  • Ordinal 0
+  • Ordinal 0
+  • Ordinal 0
+  • Ordinal 0
+  • Ordinal 0
+  • Ordinal 0
+  • Ordinal 0
+  • Ordinal 108
+
+Findings
+  •  Potentially security-sensitive API import: VirtualProtect (severity: 15)
+    Evidence: KERNEL32.dll!VirtualProtect
+
