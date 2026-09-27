@@ -1,0 +1,93 @@
+Contextual Risk Factors
+  • VirtualAlloc and VirtualProtect are both imported
+  • VirtualAlloc, WriteProcessMemory and CreateRemoteThread are imported together
+  • OpenProcess and WriteProcessMemory are imported together
+  • VirtualAlloc and CreateRemoteThread are imported together
+
+
+                                Sec-n-ThreatForge Analysis                                 
+┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Property          ┃ Value                                                               ┃
+┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ Name              │ imports.exe                                                         │
+│ Size              │ 145625 bytes                                                        │
+│ Extension         │ .exe                                                                │
+│ MIME              │ application/vnd.microsoft.portable-executable                       │
+│ Type              │ PE32+ executable for MS Windows 5.02 (console), x86-64, 19 sections │
+│ Executable Format │ PE                                                                  │
+│ Architecture      │ x86-64                                                              │
+│ Entry Point       │ 0x1440                                                              │
+│ PE Format         │ PE32+                                                               │
+│ Image Base        │ 0x140000000                                                         │
+│ Subsystem         │ Windows Console                                                     │
+│ Timestamp         │ 1788872535                                                          │
+│ Characteristics   │ 0x26                                                                │
+│ SHA-256           │ f392c04f233e9d177eaa968a3fedbd27ff1ce7222b0318143a2a3159d8a1ad8e    │
+│ Entropy           │ 5.4104                                                              │
+│ Strings           │ 3374                                                                │
+│ Findings          │ 5                                                                   │
+│ Risk Score        │ 70                                                                  │
+│ Classification    │ CRITICAL                                                            │
+│ Base Score        │ 25                                                                  │
+│ Context Bonus     │ 45                                                                  │
+└───────────────────┴─────────────────────────────────────────────────────────────────────┘
+
+Executable Sections
+┏━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━┓
+┃ Name   ┃ Virtual Size ┃ Raw Size ┃ RVA     ┃ Permissions ┃
+┡━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━┩
+│ .text  │ 7056         │ 7168     │ 0x1000  │ XR          │
+│ .data  │ 192          │ 512      │ 0x3000  │ RW          │
+│ .rdata │ 2568         │ 3072     │ 0x4000  │ R           │
+│ /4     │ 4            │ 512      │ 0x5000  │ RW          │
+│ .pdata │ 564          │ 1024     │ 0x6000  │ R           │
+│ .xdata │ 444          │ 512      │ 0x7000  │ R           │
+│ .bss   │ 480          │ 0        │ 0x8000  │ RW          │
+│ .idata │ 2436         │ 2560     │ 0x9000  │ R           │
+│ .tls   │ 16           │ 512      │ 0xa000  │ RW          │
+│ .reloc │ 96           │ 512      │ 0xb000  │ R           │
+│ /14    │ 1280         │ 1536     │ 0xc000  │ R           │
+│ /29    │ 49430        │ 49664    │ 0xd000  │ R           │
+│ /41    │ 8328         │ 8704     │ 0x1a000 │ R           │
+│ /55    │ 8049         │ 8192     │ 0x1d000 │ R           │
+│ /67    │ 2176         │ 2560     │ 0x1f000 │ R           │
+│ /80    │ 903          │ 1024     │ 0x20000 │ R           │
+│ /91    │ 9723         │ 9728     │ 0x21000 │ R           │
+│ /107   │ 5349         │ 5632     │ 0x24000 │ R           │
+│ /123   │ 396          │ 512      │ 0x26000 │ R           │
+└────────┴──────────────┴──────────┴─────────┴─────────────┘
+
+PE Imports
+KERNEL32.dll
+  • CreateRemoteThread
+  • DeleteCriticalSection
+  • EnterCriticalSection
+  • FreeLibrary
+  • GetLastError
+  • GetModuleHandleA
+  • GetProcAddress
+  • InitializeCriticalSection
+  • LeaveCriticalSection
+  • LoadLibraryA
+  • OpenProcess
+  • SetUnhandledExceptionFilter
+  • Sleep
+  • TlsGetValue
+  • VirtualAlloc
+  • VirtualProtect
+  • VirtualQuery
+  • WriteProcessMemory
+<invalid>
+
+Findings
+  •  Potentially security-sensitive API import: CreateRemoteThread (severity: 20)
+    Evidence: KERNEL32.dll!CreateRemoteThread
+  •  Potentially security-sensitive API import: OpenProcess (severity: 10)
+    Evidence: KERNEL32.dll!OpenProcess
+  •  Potentially security-sensitive API import: VirtualAlloc (severity: 15)
+    Evidence: KERNEL32.dll!VirtualAlloc
+  •  Potentially security-sensitive API import: VirtualProtect (severity: 15)
+    Evidence: KERNEL32.dll!VirtualProtect
+  •  Potentially security-sensitive API import: WriteProcessMemory (severity: 20)
+    Evidence: KERNEL32.dll!WriteProcessMemory
+
