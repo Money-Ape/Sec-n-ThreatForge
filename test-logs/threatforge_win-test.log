@@ -1,0 +1,173 @@
+Contextual Risk Factors
+  • VirtualAlloc and VirtualProtect are both imported
+
+
+                                Sec-n-ThreatForge Analysis                                
+┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Property          ┃ Value                                                              ┃
+┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ Name              │ PassCore-Setup_0.6.1-beta_x64.exe                                  │
+│ Size              │ 97322325 bytes                                                     │
+│ Extension         │ .exe                                                               │
+│ MIME              │ application/vnd.microsoft.portable-executable                      │
+│ Type              │ PE32 executable for MS Windows 6.01 (GUI), Intel i386, 11 sections │
+│ Executable Format │ PE                                                                 │
+│ Architecture      │ x86                                                                │
+│ Entry Point       │ 0xb1e60                                                            │
+│ PE Format         │ PE32                                                               │
+│ Image Base        │ 0x400000                                                           │
+│ Subsystem         │ Windows GUI                                                        │
+│ Timestamp         │ 1779452278                                                         │
+│ Characteristics   │ 0x102                                                              │
+│ SHA-256           │ 161e43753ba6e4647c4985efc031f0bc533d8e02a391e669c62b05b30814be9b   │
+│ Entropy           │ 7.9979                                                             │
+│ Strings           │ 1128105                                                            │
+│ Findings          │ 3                                                                  │
+│ Risk Score        │ 17                                                                 │
+│ Classification    │ LOW                                                                │
+│ Base Score        │ 12                                                                 │
+│ Context Bonus     │ 5                                                                  │
+└───────────────────┴────────────────────────────────────────────────────────────────────┘
+
+Executable Sections
+┏━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━┓
+┃ Name    ┃ Virtual Size ┃ Raw Size ┃ RVA     ┃ Permissions ┃
+┡━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━┩
+│ .text   │ 718860       │ 719360   │ 0x1000  │ XR          │
+│ .itext  │ 6348         │ 6656     │ 0xb1000 │ XR          │
+│ .data   │ 16188        │ 16384    │ 0xb3000 │ RW          │
+│ .bss    │ 29516        │ 0        │ 0xb7000 │ RW          │
+│ .idata  │ 4200         │ 4608     │ 0xbf000 │ RW          │
+│ .didata │ 420          │ 512      │ 0xc1000 │ RW          │
+│ .edata  │ 113          │ 512      │ 0xc2000 │ R           │
+│ .tls    │ 24           │ 0        │ 0xc3000 │ RW          │
+│ .rdata  │ 93           │ 512      │ 0xc4000 │ R           │
+│ .reloc  │ 73708        │ 73728    │ 0xc5000 │ R           │
+│ .rsrc   │ 447156       │ 447488   │ 0xd7000 │ R           │
+└─────────┴──────────────┴──────────┴─────────┴─────────────┘
+
+PE Imports
+kernel32.dll
+  • GetACP
+  • GetExitCodeProcess
+  • CloseHandle
+  • LocalFree
+  • SizeofResource
+  • VirtualProtect
+  • QueryPerformanceFrequency
+  • VirtualFree
+  • GetFullPathNameW
+  • GetProcessHeap
+  • ExitProcess
+  • HeapAlloc
+  • GetCPInfoExW
+  • CompareStringOrdinal
+  • RtlUnwind
+  • SetFilePointerEx
+  • GetCPInfo
+  • GetStdHandle
+  • GetModuleHandleW
+  • FreeLibrary
+  • HeapDestroy
+  • ReadFile
+  • CreateProcessW
+  • GetLastError
+  • GetModuleFileNameW
+  • SetLastError
+  • FindResourceW
+  • CreateThread
+  • CompareStringW
+  • GetFileSizeEx
+  • LoadLibraryA
+  • ResetEvent
+  • GetVolumeInformationW
+  • GetVersion
+  • GetDriveTypeW
+  • RaiseException
+  • FormatMessageW
+  • SwitchToThread
+  • GetExitCodeThread
+  • GetCurrentThread
+  • LoadLibraryExW
+  • LockResource
+  • GetCurrentThreadId
+  • UnhandledExceptionFilter
+  • VirtualQuery
+  • VirtualQueryEx
+  • Sleep
+  • EnterCriticalSection
+  • LoadResource
+  • SuspendThread
+  • GetTickCount
+  • GetStartupInfoW
+  • GetFileAttributesW
+  • GetCurrentDirectoryW
+  • InitializeCriticalSection
+  • GetSystemWindowsDirectoryW
+  • GetThreadPriority
+  • SetThreadPriority
+  • GetCurrentProcess
+  • VirtualAlloc
+  • GetCommandLineW
+  • GetSystemInfo
+  • GetTempPathW
+  • LeaveCriticalSection
+  • GetProcAddress
+  • ResumeThread
+  • GetVersionExW
+  • VerifyVersionInfoW
+  • HeapCreate
+  • LCMapStringW
+  • VerSetConditionMask
+  • GetDiskFreeSpaceW
+  • FindFirstFileW
+  • GetUserDefaultUILanguage
+  • lstrlenW
+  • SetEndOfFile
+  • QueryPerformanceCounter
+  • HeapFree
+  • WideCharToMultiByte
+  • FindClose
+  • MultiByteToWideChar
+  • LoadLibraryW
+  • SetEvent
+  • CreateFileW
+  • GetLocaleInfoW
+  • GetSystemDirectoryW
+  • DeleteFileW
+  • GetLocalTime
+  • WaitForSingleObject
+  • WriteFile
+  • ExitThread
+  • DeleteCriticalSection
+  • TlsGetValue
+  • GetDateFormatW
+  • IsValidLocale
+  • TlsSetValue
+  • CreateDirectoryW
+  • GetSystemDefaultUILanguage
+  • EnumCalendarInfoW
+  • LocalAlloc
+  • GetUserDefaultLangID
+  • RemoveDirectoryW
+  • CreateEventW
+  • SetThreadLocale
+  • GetThreadLocale
+
+
+PE Exports
+┏━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┓
+┃ Name                ┃ Ordinal ┃ RVA     ┃
+┡━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━┩
+│ __dbk_fcall_wrapper │ 2       │ 0xe578  │
+│ dbkFCallWrapperAddr │ 1       │ 0xba63c │
+└─────────────────────┴─────────┴─────────┘
+
+Findings
+  •  File has unusually high byte entropy (severity: 10)
+    Evidence: 7.9979
+  •  Potentially security-sensitive API import: VirtualProtect (severity: 15)
+    Evidence: kernel32.dll!VirtualProtect
+  •  Potentially security-sensitive API import: VirtualAlloc (severity: 15)
+    Evidence: kernel32.dll!VirtualAlloc
+

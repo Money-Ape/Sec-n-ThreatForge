@@ -1,0 +1,162 @@
+
+                                                                               Sec-n-ThreatForge Analysis                                                                               
+┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Property          ┃ Value                                                                                                                                                            ┃
+┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ Name              │ passcore                                                                                                                                                         │
+│ Size              │ 169719032 bytes                                                                                                                                                  │
+│ Extension         │ none                                                                                                                                                             │
+│ MIME              │ application/x-executable                                                                                                                                         │
+│ Type              │ ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 3.2.0,                           │
+│                   │ BuildID=34f6ce77833f8dc35eb938b6683c0edc0292f637, stripped                                                                                                       │
+│ Executable Format │ ELF                                                                                                                                                              │
+│ Architecture      │ x86-64                                                                                                                                                           │
+│ Entry Point       │ 0x401cc0                                                                                                                                                         │
+│ SHA-256           │ a02d42822ccd125a70d47ba321c72bbb797d8e317ff5618109325646b3c2feba                                                                                                 │
+│ Entropy           │ 7.9958                                                                                                                                                           │
+│ Strings           │ 1899026                                                                                                                                                          │
+│ Findings          │ 1                                                                                                                                                                │
+│ Risk Score        │ 2                                                                                                                                                                │
+│ Classification    │ LOW                                                                                                                                                              │
+│ Base Score        │ 2                                                                                                                                                                │
+│ Context Bonus     │ 0                                                                                                                                                                │
+└───────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+Executable Sections
+┏━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━┓
+┃ Name               ┃ Type        ┃ Size      ┃ Flags ┃
+┡━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━┩
+│                    │ NULL        │ 0         │ -     │
+│ .interp            │ PROGBITS    │ 28        │ A     │
+│ .note.ABI-tag      │ NOTE        │ 32        │ A     │
+│ .note.gnu.build-id │ NOTE        │ 36        │ A     │
+│ .gnu.hash          │ GNU_HASH    │ 40        │ A     │
+│ .dynsym            │ DYNSYM      │ 2064      │ A     │
+│ .dynstr            │ STRTAB      │ 821       │ A     │
+│ .gnu.version       │ GNU_VERSYM  │ 172       │ A     │
+│ .gnu.version_r     │ GNU_VERNEED │ 176       │ A     │
+│ .rela.dyn          │ RELA        │ 96        │ A     │
+│ .rela.plt          │ RELA        │ 1944      │ A     │
+│ .init              │ PROGBITS    │ 23        │ AX    │
+│ .plt               │ PROGBITS    │ 1312      │ AX    │
+│ .text              │ PROGBITS    │ 37106     │ AX    │
+│ .fini              │ PROGBITS    │ 9         │ AX    │
+│ .rodata            │ PROGBITS    │ 10417     │ A     │
+│ .eh_frame_hdr      │ PROGBITS    │ 804       │ A     │
+│ .eh_frame          │ PROGBITS    │ 5680      │ A     │
+│ .init_array        │ INIT_ARRAY  │ 8         │ WA    │
+│ .fini_array        │ FINI_ARRAY  │ 8         │ WA    │
+│ .data.rel.ro       │ PROGBITS    │ 72        │ WA    │
+│ .dynamic           │ DYNAMIC     │ 512       │ WA    │
+│ .got               │ PROGBITS    │ 16        │ WA    │
+│ .got.plt           │ PROGBITS    │ 672       │ WA    │
+│ .data              │ PROGBITS    │ 16        │ WA    │
+│ .bss               │ NOBITS      │ 16560     │ WA    │
+│ .comment           │ PROGBITS    │ 41        │ -     │
+│ .gnu_debuglink     │ PROGBITS    │ 16        │ -     │
+│ pydata             │ PROGBITS    │ 169650550 │ -     │
+│ .shstrtab          │ STRTAB      │ 278       │ -     │
+└────────────────────┴─────────────┴───────────┴───────┘
+
+Dependencies
+  • libdl.so.2
+  • libz.so.1
+  • libpthread.so.0
+  • libc.so.6
+
+Dynamic Symbols
+┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┓
+┃ Name              ┃ Value    ┃ Size ┃ Section ┃ Binding ┃ Type   ┃
+┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━╇━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━┩
+│                   │ 0x0      │ 0    │ 0       │ LOCAL   │ NOTYPE │
+│ getenv            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ __snprintf_chk    │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ raise             │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ free              │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ __errno_location  │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ unlink            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ strncpy           │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ strncmp           │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ strcpy            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ ftello            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ inflate           │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ mkdir             │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ ferror            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ fread             │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ mbstowcs          │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ readlink          │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ setenv            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ getpid            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ fclose            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ opendir           │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ rmdir             │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ strlen            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ __lxstat          │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ __stack_chk_fail  │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ mmap              │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ strchr            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ wcslen            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ symlink           │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ snprintf          │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ dirname           │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ fputs             │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ strncat           │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ __realpath_chk    │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ closedir          │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ __libc_start_main │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ memcmp            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ calloc            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ strcmp            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ signal            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ sem_wait          │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ feof              │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ __gmon_start__    │ 0x0      │ 0    │ 0       │ WEAK    │ NOTYPE │
+│ strtol            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ clearerr          │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ realpath          │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ memcpy            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ prctl             │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ inflateEnd        │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ kill              │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ __xpg_basename    │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ fileno            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ __xstat           │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ readdir           │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ dlopen            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ malloc            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ fflush            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ __isoc99_sscanf   │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ wcsdup            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ sem_post          │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ __vsnprintf_chk   │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ dlclose           │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ realloc           │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ mkdtemp           │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ munmap            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ fchmod            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ inflateInit_      │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ __fread_chk       │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ waitpid           │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ sem_init          │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ fseeko            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ fopen             │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ strtok            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ unsetenv          │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ strtoul           │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ execvp            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ exit              │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ fwrite            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ strdup            │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ sem_destroy       │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ strerror          │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ dlsym             │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ fork              │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ dlerror           │ 0x0      │ 0    │ 0       │ GLOBAL  │ FUNC   │
+│ stdout            │ 0x6102c0 │ 8    │ 25      │ GLOBAL  │ OBJECT │
+│ stderr            │ 0x6102e0 │ 8    │ 25      │ GLOBAL  │ OBJECT │
+└───────────────────┴──────────┴──────┴─────────┴─────────┴────────┘
+
+Findings
+  •  File has unusually high byte entropy (severity: 10)
+    Evidence: 7.9958
+
